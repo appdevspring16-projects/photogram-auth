@@ -113,7 +113,7 @@ feature "/photos:", js: do_not_show_tests_in_browser do
   end
 end
 
-feature "/photos:", js: show_tests_in_browser do
+feature "/photos:", js: do_not_show_tests_in_browser do
 
   scenario "quick-add a comment works and leads back to /photos", points: 2 do
     user = FactoryGirl.create(:user, :username => "alice", :email => "alice@example.com")
@@ -123,6 +123,9 @@ feature "/photos:", js: show_tests_in_browser do
     visit "/photos"
     fill_in "Add a comment...", with: "Lorem ipsum dolor sit amet"
     find_field("Add a comment...").native.send_keys(:return)
+
+    form = find_by_id("photo_#{photo.id}_new_comment_form")
+    Capybara::RackTest::Form.new(page.driver, form.native).submit :name => nil
 
     expect(page).to have_content("Lorem ipsum dolor sit amet")
     expect(page).to have_current_path("/photos")
@@ -147,7 +150,9 @@ feature "/photos:", js: show_tests_in_browser do
     login_as(user, :scope => :user)
 
     visit "/photos"
-    find(".fa-heart-o").click
+
+    form = find_by_id("photo_#{photo.id}_like_form")
+    Capybara::RackTest::Form.new(page.driver, form.native).submit :name => nil
 
     expect(page).to have_css(".fa-heart")
   end
