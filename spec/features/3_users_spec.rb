@@ -5,7 +5,7 @@ do_not_show_tests_in_browser = false
 
 feature "Users:", js: do_not_show_tests_in_browser do
 
-  scenario "for new photo form, user ID prepopulated or in hidden field", points: 2 do
+  scenario "in /photos/new, user ID prepopulated or in hidden field", points: 2 do
     user = FactoryGirl.create(:user)
     login_as(user, :scope => :user)
 
@@ -19,7 +19,7 @@ feature "Users:", js: do_not_show_tests_in_browser do
     end
   end
 
-  scenario "RCAV set for /users", points: 1 do
+  scenario "/users RCAV works", points: 1 do
     user = FactoryGirl.create(:user)
     login_as(user, :scope => :user)
 
@@ -29,8 +29,8 @@ feature "Users:", js: do_not_show_tests_in_browser do
   end
 
   scenario "/users lists all users", points: 2 do
-    user_1 = FactoryGirl.create(:user, :username => "1", :email => "1@m.com")
-    user_2 = FactoryGirl.create(:user, :username => "2", :email => "2@m.com")
+    user_1 = FactoryGirl.create(:user, :username => "alice", :email => "alice@example.com")
+    user_2 = FactoryGirl.create(:user, :username => "bob", :email => "bob@example.com")
     login_as(user_1, :scope => :user)
 
     visit "/users"
@@ -50,7 +50,7 @@ feature "Users:", js: do_not_show_tests_in_browser do
     }
   end
 
-  scenario "RCAV set for /users/:id", points: 1 do
+  scenario "/users/:id RCAV works", points: 1 do
     user = FactoryGirl.create(:user)
     login_as(user, :scope => :user)
 
@@ -68,7 +68,7 @@ feature "Users:", js: do_not_show_tests_in_browser do
     expect(page).to have_content(user.username)
   end
 
-  scenario "/users/:id lists user's photos", points: 2 do
+  scenario "/users/:id displays user's photos with captions", points: 2 do
     user = FactoryGirl.create(:user)
     photo_1 = FactoryGirl.create(:photo, :user_id => user.id)
     photo_2 = FactoryGirl.create(:photo, :user_id => user.id)
@@ -103,7 +103,7 @@ feature "Users:", js: do_not_show_tests_in_browser do
     }
   end
 
-  scenario "in routes.rb, /users/:id below 'devise_for :users'", points: 1 do
+  scenario "in routes.rb, avoids conflict between /users/:id and 'devise_for :users'", points: 1, hint: "Be careful where you add the route for /users/:id in routes.rb -- it needs to be below the line devise_for :users, otherwise it will conflict with /users/sign_in and /users/sign_up." do
     user = FactoryGirl.create(:user)
     login_as(user, :scope => :user)
 

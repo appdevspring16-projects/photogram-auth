@@ -5,7 +5,7 @@ do_not_show_tests_in_browser = false
 
 feature "Header:", js: do_not_show_tests_in_browser do
 
-  scenario "edit profile link is just username", points: 2 do
+  scenario "edit profile link text is just username", points: 2 do
     user = FactoryGirl.create(:user)
     login_as(user, :scope => :user)
 
