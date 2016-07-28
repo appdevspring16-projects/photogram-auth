@@ -8,9 +8,19 @@ task :grade do
   submission_url = firstdraft_config["submission_url"]
   project_token = firstdraft_config["project_token"]
 
+  access_token_filename = Rails.root.join(".firstdraft_access_token")
+
+  if File.file?(access_token_filename)
+    access_token = File.open(access_token_filename, &:readline).chomp
+  else
+    puts "What is your personal access token?"
+    access_token = STDIN.gets.chomp
+    File.open(access_token_filename, "w") { |f| f.write(access_token) }
+  end
+
   data = {
     project_token: project_token,
-    access_token: "BVzWJf5dfWMLXNnUDfrS6B46",
+    access_token: access_token,
     payload: payload
   }
 
