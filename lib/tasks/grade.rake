@@ -12,9 +12,9 @@ namespace :grade do
     puts "You are running tests locally."
     puts
     puts "Notes:"
-    puts "1. TO UPDATE TESTS, RUN rake grade:update_tests."
-    puts "2. TO SUBMIT FOR GRADING, RUN rake grade:submit."
-    puts "3. TO SEE DETAILED RESULTS, RUN rake grade:local[descriptive] or rake grade:local[d]."
+    # puts "1. TO UPDATE TESTS, RUN rake grade:update_tests."
+    puts "1. TO SUBMIT FOR GRADING, RUN rake grade:submit."
+    puts "2. TO SEE DETAILED RESULTS, RUN rake grade:local[descriptive] or rake grade:local[d]."
     puts
     puts "Test results:"
 
@@ -43,7 +43,11 @@ namespace :grade do
       project_token = config["project_token"]
       personal_access_token = config["personal_access_token"]
     rescue
-      abort("ERROR: CHECK .firstdraft.yml")
+      abort("ERROR: Does the file .firstdraft.yml exist?")
+    end
+
+    if !project_token
+      abort("ERROR: Is project_token set in .firstdraft.yml?")
     end
 
     if !personal_access_token
@@ -77,7 +81,7 @@ namespace :grade do
     # FUTURE ITERATION: Inefficient. Can combine rspec calls later.
     puts "DETAILED TEST RESULTS"
     # FORMAT: DOCUMENTATION
-    rspec_output_string_doc = `rspec --order default --format documentation --color --tty --format html --out test_output.html` # "--require spec_helper"?
+    rspec_output_string_doc = `rspec --order default --format documentation --color --tty` # "--require spec_helper"?
     puts rspec_output_string_doc
 
   end
