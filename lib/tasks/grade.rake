@@ -94,13 +94,20 @@ namespace :grade do
 
     puts
     puts "C. SUBMITTING RESULTS"
+    data = {
+      project_token: project_token,
+      access_token: personal_access_token,
+      payload: rspec_output_json
+    }
     uri = URI(submission_url)
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
-    req.body = rspec_output_json.to_json
+    req.body = data.to_json
     res = Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
-    puts "- submitted: #{JSON.parse(res.body)["summary_line"]}"
+    puts "- submitted: personal_access_token = #{JSON.parse(res.body)["access_token"]}"
+    puts "- submitted: project_token = #{JSON.parse(res.body)["project_token"]}"
+    puts "- submitted: #{JSON.parse(res.body)["payload"]["summary_line"]}"
 
     puts
     puts "D. DETAILED TEST RESULTS"
