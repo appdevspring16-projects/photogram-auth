@@ -51,13 +51,18 @@ namespace :grade do
     end
 
     # FUTURE ITERATION: store personal access token in ~/firstdraft.yml or a Windows equivalent so that students don't have to re-enter it for each project
-    personal_access_token_filename = Rails.root.join(".firstdraft_student.yml")
+    student_token_filename_base = ".firstdraft_student.yml"
+    personal_access_token_filename = Rails.root.join(student_token_filename_base)
     if File.file?(personal_access_token_filename)
       student_config = YAML.load_file(personal_access_token_filename)
       personal_access_token = student_config["personal_access_token"]
     else
       student_config = {}
       personal_access_token = nil
+      gitignore_filename = Rails.root.join(".gitignore")
+      File.open(gitignore_filename, "a+") do |file|
+        file.puts "/#{student_token_filename_base}"
+      end
     end
     if !personal_access_token
       puts "Enter your personal access token"
