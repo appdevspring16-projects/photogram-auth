@@ -4,6 +4,7 @@
 # end
 
 require 'json'
+require 'yaml'
 
 namespace :grade do
 
@@ -34,19 +35,14 @@ namespace :grade do
   desc "Submit test results"
   task :submit do
 
-    # FUTURE ITERATION: store personal access token in ~/firstdraft.yml or a Windows equivalent so that students don't have to re-enter it for each project
-
     begin
-      require 'yaml'
-      config_file_name = Rails.root.join(".firstdraft.yml")
+      config_file_name = Rails.root.join(".firstdraft_project.yml")
       config = YAML.load_file(config_file_name)
       project_token = config["project_token"]
       submission_url = config["submission_url"]
-      personal_access_token = config["personal_access_token"]
     rescue
       abort("ERROR: Does the file .firstdraft.yml exist?")
     end
-
     if !project_token
       abort("ERROR: Is project_token set in .firstdraft.yml?")
     end
@@ -54,6 +50,15 @@ namespace :grade do
       abort("ERROR: Is submission_url set in .firstdraft.yml?")
     end
 
+    # FUTURE ITERATION: store personal access token in ~/firstdraft.yml or a Windows equivalent so that students don't have to re-enter it for each project
+    personal_access_token_filename = Rails.root.join(".firstdraft_student.yml")
+    if File.file?(personal_access_token_filename)
+      student_config = YAML.load_file(personal_access_token_filename)
+      personal_access_token = student_config["personal_access_token"]
+    else
+      student_config = {}
+      personal_access_token = nil
+    end
     if !personal_access_token
       puts "Enter your personal access token"
       new_personal_access_token = ""
@@ -62,19 +67,19 @@ namespace :grade do
         new_personal_access_token = $stdin.gets.chomp.strip
         if new_personal_access_token != ""
           personal_access_token = new_personal_access_token
-          config = YAML.load_file(config_file_name)
-          config["personal_access_token"] = personal_access_token
-          File.write(config_file_name, YAML.dump(config))
+          student_config["personal_access_token"] = personal_access_token
+          File.write(personal_access_token_filename, YAML.dump(student_config))
         end
       end
     end
 
     puts "* You are running tests and submitting the results."
     puts
-    puts "A. PROJECT/PERSONAL TOKENS"
-    puts "- Project token: #{project_token}"
+    puts "A. PERSONAL/PROJECT TOKENS"
     puts "- Personal access token: #{personal_access_token}"
-    puts "- Note: You can change either value in #{config_file_name}"
+    puts "- Project token: #{project_token}"
+    puts "- Note: You can change the personal access token in #{personal_access_token_filename}"
+    puts "- Note: You shouldn't need to, but you can change the project token in #{config_file_name}"
 
     puts
     puts "B. TEST RESULTS"
