@@ -20,10 +20,10 @@ namespace :grade do
 
     if args[:arg1] == "descriptive" || args[:arg1] == "d"
       # sh "rspec"
-      rspec_output_string_doc = `rspec --order default --format documentation --color --tty --format html --out test_output.html` # "--require spec_helper"?
+      rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty --format html --out test_output.html` # "--require spec_helper"?
       puts rspec_output_string_doc
     else
-      rspec_output_string_json = `rspec --order default --format json`
+      rspec_output_string_json = `bundle exec rspec --order default --format json`
       rspec_output_json = JSON.parse(rspec_output_string_json)
       puts "WARNING: UNKNOWN ARGUMENT \"#{args[:arg1]}\"" if args[:arg1]
       puts rspec_output_json["summary_line"]
@@ -38,7 +38,7 @@ namespace :grade do
 
     begin
       require 'yaml'
-      config_file_name = ".firstdraft.yml"
+      config_file_name = Rails.root.join(".firstdraft.yml")
       config = YAML.load_file(config_file_name)
       project_token = config["project_token"]
       personal_access_token = config["personal_access_token"]
@@ -74,7 +74,7 @@ namespace :grade do
 
     puts
     puts "B. TEST RESULTS"
-    rspec_output_string_json = `rspec --order default --format json`
+    rspec_output_string_json = `bundle exec rspec --order default --format json`
     rspec_output_json = JSON.parse(rspec_output_string_json)
     puts "- #{rspec_output_json["summary_line"]}"
 
@@ -92,7 +92,7 @@ namespace :grade do
     puts
     puts "D. DETAILED TEST RESULTS"
     # FUTURE ITERATION: Inefficient. Can combine rspec calls later.
-    rspec_output_string_doc = `rspec --order default --format documentation --color --tty` # "--require spec_helper"?
+    rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
     puts rspec_output_string_doc
 
   end
