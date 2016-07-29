@@ -9,7 +9,7 @@ namespace :grade do
 
   desc "Run tests locally"
   task :local, [:arg1] do |t, args|
-    puts "You are running tests locally."
+    puts "* You are running tests locally."
     puts
     puts "Notes:"
     # puts "1. TO UPDATE TESTS, RUN rake grade:update_tests."
@@ -65,22 +65,33 @@ namespace :grade do
       end
     end
 
-    puts "PROJECT/PERSONAL TOKENS"
+    puts "* You are running tests and submitting the results."
+    puts
+    puts "A. PROJECT/PERSONAL TOKENS"
     puts "- Project token: #{project_token}"
     puts "- Personal access token: #{personal_access_token}"
     puts "- Note: You can change either value in #{config_file_name}"
-    puts
 
-    puts "TEST RESULTS"
-    # FORMAT: JSON
+    puts
+    puts "B. TEST RESULTS"
     rspec_output_string_json = `rspec --order default --format json`
     rspec_output_json = JSON.parse(rspec_output_string_json)
-    puts rspec_output_json["summary_line"]
-    puts
+    puts "- #{rspec_output_json["summary_line"]}"
 
+    puts
+    puts "C. SUBMITTING RESULTS"
+
+    uri = URI('http://localhost:3000/submit')
+    req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+    req.body = rspec_output_json.to_json
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+    puts "- submitted: #{JSON.parse(res.body)["summary_line"]}"
+
+    puts
+    puts "D. DETAILED TEST RESULTS"
     # FUTURE ITERATION: Inefficient. Can combine rspec calls later.
-    puts "DETAILED TEST RESULTS"
-    # FORMAT: DOCUMENTATION
     rspec_output_string_doc = `rspec --order default --format documentation --color --tty` # "--require spec_helper"?
     puts rspec_output_string_doc
 
