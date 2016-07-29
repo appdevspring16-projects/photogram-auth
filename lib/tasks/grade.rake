@@ -41,6 +41,7 @@ namespace :grade do
       config_file_name = Rails.root.join(".firstdraft.yml")
       config = YAML.load_file(config_file_name)
       project_token = config["project_token"]
+      submission_url = config["submission_url"]
       personal_access_token = config["personal_access_token"]
     rescue
       abort("ERROR: Does the file .firstdraft.yml exist?")
@@ -48,6 +49,9 @@ namespace :grade do
 
     if !project_token
       abort("ERROR: Is project_token set in .firstdraft.yml?")
+    end
+    if !submission_url
+      abort("ERROR: Is submission_url set in .firstdraft.yml?")
     end
 
     if !personal_access_token
@@ -80,8 +84,7 @@ namespace :grade do
 
     puts
     puts "C. SUBMITTING RESULTS"
-
-    uri = URI('http://localhost:3000/submit')
+    uri = URI(submission_url)
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req.body = rspec_output_json.to_json
     res = Net::HTTP.start(uri.hostname, uri.port) do |http|

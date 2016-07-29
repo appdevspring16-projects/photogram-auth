@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  post "/submit", :controller => "comments", :action => "submit"
+  post "/builds", :controller => "submissions", :action => "submit"
 
   # Routes for the Comment resource:
   # CREATE
