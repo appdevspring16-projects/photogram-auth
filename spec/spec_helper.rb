@@ -18,15 +18,17 @@ RSpec.configure do |config|
   class RSpec::Core::Formatters::JsonFormatter
     def dump_summary(summary)
       total_points = summary.
-      examples.
-      map { |example| example.metadata[:points].to_i }.
-      sum
+        examples.
+        map { |example| example.metadata[:points].to_i }.
+        sum
 
       earned_points = summary.
-      examples.
-      select { |example| example.execution_result.status == :passed }.
-      map { |example| example.metadata[:points].to_i }.
-      sum
+        examples.
+        select { |example| example.execution_result.status == :passed }.
+        map { |example| example.metadata[:points].to_i }.
+        sum
+
+      score = (earned_points.to_f / total_points).round(4)
 
       @output_hash[:summary] = {
         :duration => summary.duration,
@@ -35,14 +37,14 @@ RSpec.configure do |config|
         :pending_count => summary.pending_count,
         :total_points => total_points,
         :earned_points => earned_points,
-        :score => earned_points.to_f / total_points
+        :score => score
       }
 
       @output_hash[:summary_line] = [
         "#{summary.example_count} tests",
         "#{summary.failure_count} failures",
         "#{earned_points}/#{total_points} points",
-        "#{(earned_points.to_f / total_points) * 100}%",
+        "#{score * 100}%",
       ].join(", ")
     end
 
