@@ -25,9 +25,10 @@ task :grade do
   }
 
   uri = URI(submission_url)
+  use_ssl = uri.scheme == "https" ? true : false
   req = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
   req.body = data.to_json
-  res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+  res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: use_ssl) do |http|
     http.request(req)
   end
 end
