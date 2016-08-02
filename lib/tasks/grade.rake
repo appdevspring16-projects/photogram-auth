@@ -28,7 +28,7 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
 
   student_token_filename_base = ".firstdraft_student.yml"
   gitignore_filename = Rails.root.join(".gitignore")
-  if File.readlines(".gitignore").grep(/^\/.firstdraft_student.yml$/).size == 0
+  if File.readlines(gitignore_filename).grep(/^\/.firstdraft_student.yml$/).size == 0
     File.open(gitignore_filename, "a+") do |file|
       file.puts "/#{student_token_filename_base}"
     end
@@ -71,6 +71,11 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   puts
   puts "B. RUNNING TESTS"
   results_html_file_name_base = "public/test_output.html"
+  if File.readlines(gitignore_filename).grep(/^\/public\/#{results_html_file_name_base.split("public/").last}$/).size == 0 # assumes results file will be placed in public/
+    File.open(gitignore_filename, "a+") do |file|
+      file.puts "/public/#{results_html_file_name_base.split("public/").last}"
+    end
+  end
   results_html_file_name = Rails.root.join(results_html_file_name_base)
   rspec_output_string_json = `bundle exec rspec --order default --format json --format html --out #{results_html_file_name}`
   rspec_output_json = JSON.parse(rspec_output_string_json)
