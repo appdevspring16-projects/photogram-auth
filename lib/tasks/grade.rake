@@ -64,10 +64,12 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
 
   puts
   puts "B. RUNNING TESTS"
-  rspec_output_string_json = `bundle exec rspec --order default --format json`
+  results_html_file_name_base = "public/test_output.html"
+  results_html_file_name = Rails.root.join(results_html_file_name_base)
+  rspec_output_string_json = `bundle exec rspec --order default --format json --format html --out #{results_html_file_name}`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
-  puts "- detailed results URL: TBD"
+  puts "- detailed results in browser: run 'open #{results_html_file_name}'"
   puts "- detailed results inline: run 'rspec' or 'rake grade[descriptive]' or 'rake grade[d]'"
 
   puts
@@ -96,5 +98,7 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
     puts "D. DETAILED TEST RESULTS"
     rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
     puts rspec_output_string_doc
+  else
+    `open #{results_html_file_name}`
   end
 end
