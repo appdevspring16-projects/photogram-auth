@@ -3,6 +3,10 @@
 # 2. Task to update tests
 # 3. Associate pull request / commit to each submission
 # 4. Make 'descriptive' option more efficient
+# 5. Time stamp html file names or create a local index page containing prior test results?
+
+# TESTING NEEDED
+# A. SSL & 'open' & 'rspec' commands on Windows, Nitrous
 
 desc "Grade project"
 task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
@@ -23,6 +27,12 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   end
 
   student_token_filename_base = ".firstdraft_student.yml"
+  gitignore_filename = Rails.root.join(".gitignore")
+  if File.readlines(".gitignore").grep(/^\/.firstdraft_student.yml$/).size == 0
+    File.open(gitignore_filename, "a+") do |file|
+      file.puts "/#{student_token_filename_base}"
+    end
+  end
   personal_access_token_filename = Rails.root.join(student_token_filename_base)
   if File.file?(personal_access_token_filename)
     student_config = YAML.load_file(personal_access_token_filename)
@@ -30,10 +40,6 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   else
     student_config = {}
     personal_access_token = nil
-    gitignore_filename = Rails.root.join(".gitignore")
-    File.open(gitignore_filename, "a+") do |file|
-      file.puts "/#{student_token_filename_base}"
-    end
   end
   if !personal_access_token
     puts "Enter your personal access token"
@@ -69,7 +75,7 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   rspec_output_string_json = `bundle exec rspec --order default --format json --format html --out #{results_html_file_name}`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
-  puts "- detailed results in browser: run 'open #{results_html_file_name}'"
+  puts "- detailed results in browser: run 'open #{results_html_file_name}' or, if your server is running, go to http://localhost:3000/#{results_html_file_name_base.split('public/').last}"
   puts "- detailed results inline: run 'rspec' or 'rake grade[descriptive]' or 'rake grade[d]'"
 
   puts
