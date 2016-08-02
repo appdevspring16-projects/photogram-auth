@@ -83,6 +83,7 @@ namespace :grade do
     puts "A. PERSONAL/PROJECT TOKENS"
     puts "- Personal access token: #{personal_access_token}"
     puts "- Project token: #{project_token}"
+    puts "- Submission URL: #{submission_url}"
     puts "- Note: You can change the personal access token in #{personal_access_token_filename}"
     puts "- Note: You shouldn't need to, but you can change the project token in #{config_file_name}"
 
@@ -97,7 +98,7 @@ namespace :grade do
     data = {
       project_token: project_token,
       access_token: personal_access_token,
-      payload: rspec_output_json
+      test_output: rspec_output_json
     }
     uri = URI(submission_url)
     use_ssl = uri.scheme == "https" ? true : false
@@ -106,15 +107,20 @@ namespace :grade do
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: use_ssl) do |http|
       http.request(req)
     end
-    puts "- submitted: personal_access_token = #{JSON.parse(res.body)["access_token"]}"
-    puts "- submitted: project_token = #{JSON.parse(res.body)["project_token"]}"
-    puts "- submitted: #{JSON.parse(res.body)["payload"]["summary_line"]}"
-
+    # puts "- submitted: personal_access_token = #{JSON.parse(res.body)["access_token"]}"
+    # puts "- submitted: project_token = #{JSON.parse(res.body)["project_token"]}"
+    # puts "- submitted: #{JSON.parse(res.body)["test_output"]["summary_line"]}"
+    if res.body == "true"
+      puts "- submitted successfully to #{submission_url}"
+    else
+      puts "- ERROR: NOT SUBMITTED. Full info: #{res.inspect}, #{res.body}"
+    end
     puts
-    puts "D. DETAILED TEST RESULTS"
-    # FUTURE ITERATION: Inefficient. Can combine rspec calls later.
-    rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
-    puts rspec_output_string_doc
+
+    # puts "D. DETAILED TEST RESULTS"
+    # # FUTURE ITERATION: Inefficient. Can combine rspec calls later.
+    # rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
+    # puts rspec_output_string_doc
 
   end
 
