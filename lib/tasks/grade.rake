@@ -7,7 +7,8 @@ desc "Grade project"
 task :grade do # if needed in the future, add => :environment
 
   begin
-    config_file_name = Rails.root.join(".firstdraft_project.yml")
+    config_file_name_base = ".firstdraft_project.yml"
+    config_file_name = Rails.root.join(config_file_name_base)
     config = YAML.load_file(config_file_name)
     project_token = config["project_token"]
     submission_url = config["submission_url"]
@@ -50,18 +51,17 @@ task :grade do # if needed in the future, add => :environment
 
   puts "* You are running tests and submitting the results."
   puts
-  puts "A. PERSONAL/PROJECT TOKENS"
-  puts "- Personal access token: #{personal_access_token}"
-  puts "- Project token: #{project_token}"
-  puts "- Submission URL: #{submission_url}"
-  puts "- Note: You can change the personal access token in #{personal_access_token_filename}"
-  puts "- Note: You shouldn't need to, but you can change the project token in #{config_file_name}"
+  puts "A. READ PERSONAL/PROJECT SETTINGS"
+  puts "- Personal access token: #{personal_access_token} [#{student_token_filename_base}]"
+  puts "- Project token: #{project_token} [#{config_file_name_base}]"
+  puts "- Submission URL: #{submission_url} [#{config_file_name_base}]"
 
   puts
-  puts "B. TEST RESULTS"
+  puts "B. RUNNING TESTS"
   rspec_output_string_json = `bundle exec rspec --order default --format json`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
+  puts "- detailed results URL: TBD"
 
   puts
   puts "C. SUBMITTING RESULTS"
@@ -79,6 +79,7 @@ task :grade do # if needed in the future, add => :environment
   end
   if res.body == "true"
     puts "- submitted successfully to #{submission_url}"
+    puts "- submission URL: TBD"
   else
     puts "- ERROR: NOT SUBMITTED. Full info: #{res.inspect}, #{res.body}"
   end
