@@ -2,10 +2,10 @@
 # 1. Store personal token in ~/firstdraft.yml or Windows/Nitrous equivalent
 # 2. Task to update tests
 # 3. Associate pull request / commit to each submission
+# 4. Make 'descriptive' option more efficient
 
 desc "Grade project"
-task :grade do # if needed in the future, add => :environment
-
+task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   begin
     config_file_name_base = ".firstdraft_project.yml"
     config_file_name = Rails.root.join(config_file_name_base)
@@ -50,6 +50,12 @@ task :grade do # if needed in the future, add => :environment
   end
 
   puts "* You are running tests and submitting the results."
+  if args[:arg1] == "descriptive" || args[:arg1] == "d"
+    puts "* WITH DETAILED RESULTS."
+  else
+    puts "WARNING: UNKNOWN ARGUMENT \"#{args[:arg1]}\"" if args[:arg1]
+  end
+
   puts
   puts "A. READ PERSONAL/PROJECT SETTINGS"
   puts "- Personal access token: #{personal_access_token} [#{student_token_filename_base}]"
@@ -62,6 +68,7 @@ task :grade do # if needed in the future, add => :environment
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
   puts "- detailed results URL: TBD"
+  puts "- detailed results inline: run 'rspec' or 'rake grade[descriptive]' or 'rake grade[d]'"
 
   puts
   puts "C. SUBMITTING RESULTS"
@@ -85,8 +92,9 @@ task :grade do # if needed in the future, add => :environment
   end
   puts
 
-  # puts "D. DETAILED TEST RESULTS"
-  # # FUTURE ITERATION: Inefficient. Can combine rspec calls later.
-  # rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
-  # puts rspec_output_string_doc
+  if args[:arg1] == "descriptive" || args[:arg1] == "d"
+    puts "D. DETAILED TEST RESULTS"
+    rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
+    puts rspec_output_string_doc
+  end
 end
