@@ -2,7 +2,7 @@ desc "Grade project"
 task :grade do
   `bundle exec rspec --order default --format j --out test_output.json --format html --out public/test_output.html`
 
-  payload = JSON.parse(open(Rails.root.join("test_output.json")).read)
+  test_output = JSON.parse(open(Rails.root.join("test_output.json")).read)
 
   firstdraft_config = YAML.load_file(Rails.root.join(".firstdraft.yml"))
   submission_url = firstdraft_config["submission_url"]
@@ -21,7 +21,7 @@ task :grade do
   data = {
     project_token: project_token,
     access_token: access_token,
-    payload: payload
+    test_output: test_output
   }
 
   uri = URI(submission_url)
