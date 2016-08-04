@@ -56,7 +56,7 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   end
 
   puts "* You are running tests and submitting the results."
-  if args[:arg1] == "descriptive" || args[:arg1] == "d"
+  if args[:arg1] == "verbose" || args[:arg1] == "v"
     puts "* WITH DETAILED RESULTS."
   else
     puts "WARNING: UNKNOWN ARGUMENT \"#{args[:arg1]}\"" if args[:arg1]
@@ -69,22 +69,14 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   puts "- Submission URL: #{submission_url} [#{config_file_name_base}]"
 
   puts
-  puts "B. RUNNING TESTS"
-  results_html_file_name_base = "public/test_output.html"
-  if File.readlines(gitignore_filename).grep(/^\/public\/#{results_html_file_name_base.split("public/").last}$/).size == 0 # assumes results file will be placed in public/
-    File.open(gitignore_filename, "a+") do |file|
-      file.puts "/public/#{results_html_file_name_base.split("public/").last}"
-    end
-  end
-  results_html_file_name = Rails.root.join(results_html_file_name_base)
-  rspec_output_string_json = `bundle exec rspec --order default --format json --format html --out #{results_html_file_name}`
+  puts "B. RUN TESTS"
+  rspec_output_string_json = `bundle exec rspec --order default --format json`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
-  puts "- detailed results in browser: run 'open #{results_html_file_name}' or, if your server is running, go to http://localhost:3000/#{results_html_file_name_base.split('public/').last}"
-  puts "- detailed results inline: run 'rspec' or 'rake grade[descriptive]' or 'rake grade[d]'"
+  puts "- for detailed results: run 'rspec' or 'rake grade[verbose]' or 'rake grade[v]'"
 
   puts
-  puts "C. SUBMITTING RESULTS"
+  puts "C. SUBMIT RESULTS"
   data = {
     project_token: project_token,
     access_token: personal_access_token,
@@ -97,19 +89,20 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: use_ssl) do |http|
     http.request(req)
   end
-  if res.body == "true"
-    puts "- submitted successfully to #{submission_url}"
-    puts "- submission URL: TBD"
+  if res.kind_of? Net::HTTPCreated
+    puts "- submitted successfully!"
+    results_url = submission_url + "/" + JSON.parse(res.body)["id"]
+    puts "- results URL: #{results_url}"
   else
-    puts "- ERROR: NOT SUBMITTED. Full info: #{res.inspect}, #{res.body}"
+    puts "- ERROR: #{res.inspect}, #{res.body}"
   end
   puts
 
-  if args[:arg1] == "descriptive" || args[:arg1] == "d"
+  if args[:arg1] == "verbose" || args[:arg1] == "v"
     puts "D. DETAILED TEST RESULTS"
     rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
     puts rspec_output_string_doc
   else
-    `open #{results_html_file_name}`
+    `open #{results_url}`
   end
 end
