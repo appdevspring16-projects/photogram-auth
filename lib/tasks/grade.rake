@@ -64,7 +64,7 @@ task :grade do # if needed in the future, add => :environment
   end
 
   puts "* You are running tests and submitting the results."
-  puts "* WITH DETAILED RESULTS." if options[:verbose]
+  puts "* WITH DETAILED RESULTS" if options[:verbose]
   puts "* IGNORING ARGUMENTS #{ARGV[1..-1]}" if ARGV.length > 1
 
   puts
@@ -78,7 +78,7 @@ task :grade do # if needed in the future, add => :environment
   rspec_output_string_json = `bundle exec rspec --order default --format json`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
-  puts "- for detailed results: run 'rspec' or 'rake grade --verbose' or 'rake grade -v'"
+  puts "- For detailed results: run 'rake grade --verbose' or 'rake grade -v' or 'rspec'" if !options[:verbose]
 
   puts
   puts "C. SUBMIT RESULTS"
@@ -95,9 +95,8 @@ task :grade do # if needed in the future, add => :environment
     http.request(req)
   end
   if res.kind_of? Net::HTTPCreated
-    puts "- submitted successfully!"
     results_url = submission_url + "/" + JSON.parse(res.body)["id"]
-    puts "- results URL: #{results_url}"
+    puts "- Done! Results URL: #{results_url}"
     puts
     if options[:verbose]
       puts "D. DETAILED TEST RESULTS"
