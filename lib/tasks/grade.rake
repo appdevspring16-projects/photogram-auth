@@ -9,7 +9,15 @@
 # A. SSL & 'open' & 'rspec' commands on Windows, Nitrous
 
 desc "Grade project"
-task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
+task :grade do # if needed in the future, add => :environment
+
+  options = {}
+  OptionParser.new do |opts|
+    opts.on("-v", "--verbose", "Show detailed test results") do |v|
+      options[:verbose] = v
+    end
+  end.parse!
+
   begin
     config_file_name_base = ".firstdraft_project.yml"
     config_file_name = Rails.root.join(config_file_name_base)
@@ -56,11 +64,8 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   end
 
   puts "* You are running tests and submitting the results."
-  if args[:arg1] == "verbose" || args[:arg1] == "v"
-    puts "* WITH DETAILED RESULTS."
-  else
-    puts "WARNING: UNKNOWN ARGUMENT \"#{args[:arg1]}\"" if args[:arg1]
-  end
+  puts "* WITH DETAILED RESULTS." if options[:verbose]
+  puts "* IGNORING ARGUMENTS #{ARGV[1..-1]}" if ARGV.length > 1
 
   puts
   puts "A. READ PERSONAL/PROJECT SETTINGS"
@@ -73,7 +78,7 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
   rspec_output_string_json = `bundle exec rspec --order default --format json`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}"
-  puts "- for detailed results: run 'rspec' or 'rake grade[verbose]' or 'rake grade[v]'"
+  puts "- for detailed results: run 'rspec' or 'rake grade --verbose' or 'rake grade -v'"
 
   puts
   puts "C. SUBMIT RESULTS"
@@ -93,16 +98,17 @@ task :grade, [:arg1] do |t, args| # if needed in the future, add => :environment
     puts "- submitted successfully!"
     results_url = submission_url + "/" + JSON.parse(res.body)["id"]
     puts "- results URL: #{results_url}"
+    puts
+    if options[:verbose]
+      puts "D. DETAILED TEST RESULTS"
+      rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
+      puts rspec_output_string_doc
+    else
+      `open #{results_url}`
+    end
   else
     puts "- ERROR: #{res.inspect}, #{res.body}"
+    puts
   end
-  puts
 
-  if args[:arg1] == "verbose" || args[:arg1] == "v"
-    puts "D. DETAILED TEST RESULTS"
-    rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
-    puts rspec_output_string_doc
-  else
-    `open #{results_url}`
-  end
 end
