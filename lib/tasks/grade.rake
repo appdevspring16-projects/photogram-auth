@@ -94,11 +94,16 @@ task :grade do # if needed in the future, add => :environment
     test_output: rspec_output_json
   }
   uri = URI(submission_url)
-  use_ssl = uri.scheme == "https" ? true : false
-  req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
-  req.body = data.to_json
-  res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: use_ssl) do |http|
-    http.request(req)
+  begin
+    use_ssl = uri.scheme == "https" ? true : false
+    req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+    req.body = data.to_json
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: use_ssl) do |http|
+      http.request(req)
+    end
+  rescue Exception => e
+    # http://stackoverflow.com/questions/5370697/what-s-the-best-way-to-handle-exceptions-from-nethttp
+    abort("NETWORK ERROR: #{e.inspect}\n".red.bold)
   end
   if res.kind_of? Net::HTTPCreated
     results_url = JSON.parse(res.body)["url"]
