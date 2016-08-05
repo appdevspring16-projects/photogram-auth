@@ -3,7 +3,6 @@
 # 2. Task to update tests
 # 3. Associate pull request / commit to each submission
 # 4. Make 'descriptive' option more efficient
-# 5. Time stamp html file names or create a local index page containing prior test results?
 
 # TESTING NEEDED
 # A. SSL & 'open' & 'rspec' commands on Windows, Nitrous
@@ -103,7 +102,12 @@ task :grade do # if needed in the future, add => :environment
     end
   rescue Exception => e
     # http://stackoverflow.com/questions/5370697/what-s-the-best-way-to-handle-exceptions-from-nethttp
-    abort("NETWORK ERROR: #{e.inspect}\n".red.bold)
+    network_error_msg_base = "NETWORK ERROR: the submission to #{submission_url} didn't work.  Possible causes: (a) your internet connection or (b) the grading server.  For (b), try submitting again, and if that doesn't work, try again after some time -- and if that still doesn't work, let your instructor know :)"
+    if options[:verbose]
+      abort("#{network_error_msg_base}  \n\nTechnical error message that may or may not be helpful: #{e.inspect}\n".red.bold)
+    else
+      abort("#{network_error_msg_base}  For a technical error message that may or may not be helpful, run 'rake grade --verbose' or 'rake grade -v'.\n".red.bold)
+    end
   end
   if res.kind_of? Net::HTTPCreated
     results_url = JSON.parse(res.body)["url"]
