@@ -83,7 +83,7 @@ task :grade do # if needed in the future, add => :environment
   rspec_output_string_json = `bundle exec rspec --order default --format json`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}".result_format
-  puts "- For detailed results: run 'rake grade --verbose' or 'rake grade -v' or 'rspec'" if !options[:verbose]
+  puts "- For detailed results: run 'rake grade --verbose' or 'rake grade -v'" if !options[:verbose]
 
   puts
   puts "#{header_outline_counter}. SUBMIT RESULTS".header_format
