@@ -63,25 +63,31 @@ task :grade do # if needed in the future, add => :environment
     end
   end
 
+  header_outline_counter = "A"
   puts "* You are running tests and submitting the results."
   puts "* WITH DETAILED RESULTS" if options[:verbose]
   puts "* IGNORING ARGUMENTS #{ARGV[1..-1]}" if ARGV.length > 1
 
-  puts
-  puts "A. READ PERSONAL/PROJECT SETTINGS".header_format
-  puts "- Personal access token: #{personal_access_token} [#{student_token_filename_base}]"
-  puts "- Project token: #{project_token} [#{config_file_name_base}]"
-  puts "- Submission URL: #{submission_url} [#{config_file_name_base}]"
+  if options[:verbose]
+    puts
+    puts "#{header_outline_counter}. READ PERSONAL/PROJECT SETTINGS".header_format
+    header_outline_counter = header_outline_counter.next
+    puts "- Personal access token: #{personal_access_token} [#{student_token_filename_base}]"
+    puts "- Project token: #{project_token} [#{config_file_name_base}]"
+    puts "- Submission URL: #{submission_url} [#{config_file_name_base}]"
+  end
 
   puts
-  puts "B. RUN TESTS".header_format
+  puts "#{header_outline_counter}. RUN TESTS".header_format
+  header_outline_counter = header_outline_counter.next
   rspec_output_string_json = `bundle exec rspec --order default --format json`
   rspec_output_json = JSON.parse(rspec_output_string_json)
   puts "- #{rspec_output_json["summary_line"]}".result_format
   puts "- For detailed results: run 'rake grade --verbose' or 'rake grade -v' or 'rspec'" if !options[:verbose]
 
   puts
-  puts "C. SUBMIT RESULTS".header_format
+  puts "#{header_outline_counter}. SUBMIT RESULTS".header_format
+  header_outline_counter = header_outline_counter.next
   data = {
     project_token: project_token,
     access_token: personal_access_token,
@@ -95,11 +101,12 @@ task :grade do # if needed in the future, add => :environment
     http.request(req)
   end
   if res.kind_of? Net::HTTPCreated
-    results_url = submission_url + "/" + JSON.parse(res.body)["id"]
+    results_url = JSON.parse(res.body)["url"]
     puts "- Done! Results URL: ".result_format + "#{results_url}".link_format.result_format
     puts
     if options[:verbose]
-      puts "D. DETAILED TEST RESULTS".header_format
+      puts "#{header_outline_counter}. DETAILED TEST RESULTS".header_format
+      header_outline_counter = header_outline_counter.next
       rspec_output_string_doc = `bundle exec rspec --order default --format documentation --color --tty` # "--require spec_helper"?
       puts rspec_output_string_doc
     else
