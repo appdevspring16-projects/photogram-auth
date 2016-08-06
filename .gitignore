@@ -16,4 +16,5 @@
 !/log/.keep
 /tmp
 
-/test_output.*
+/.firstdraft_student.yml
+/public/test_output.html
