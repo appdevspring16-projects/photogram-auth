@@ -1,6 +1,6 @@
 # POTENTIAL IMPROVEMENTS
 # 1. Store personal token in ~/firstdraft.yml or Windows/Nitrous equivalent
-# 2. Task to update tests
+# 2. Task to update tests (perhaps automatically if checksum doesn't match)
 # 3. Associate pull request / commit to each submission
 # 4. Make 'descriptive' option more efficient
 
@@ -90,7 +90,9 @@ task :grade do # if needed in the future, add => :environment
   data = {
     project_token: project_token,
     access_token: personal_access_token,
-    test_output: rspec_output_json
+    test_output: rspec_output_json,
+    checksum_tests: checksum_tests,
+    checksum_student_code: checksum_student_code
   }
   uri = URI(submission_url)
   begin
@@ -126,6 +128,33 @@ task :grade do # if needed in the future, add => :environment
     puts
   end
 
+end
+
+def checksum_tests
+  md5 = Digest::MD5.new
+
+  # spec_folder = Rails.root.join("spec")
+  # spec_files = Dir["#{spec_folder}/**/*"].reject{ |f| File.directory?(f) }
+  # spec_files.each { |f| md5 << File.read(f) }
+  Dir["#{Rails.root.join("spec")}/**/*"]
+    .reject{ |f| File.directory?(f) }
+    .each { |f| md5 << File.read(f) }
+  md5 << File.read(Rails.root.join("lib", "tasks", "grade.rake"))
+  md5 << File.read(Rails.root.join(".firstdraft_project.yml"))
+
+  return md5.hexdigest
+end
+
+def checksum_student_code
+  md5 = Digest::MD5.new
+
+  Dir["#{Rails.root.join("app")}/**/*"]
+    .reject{ |f| File.directory?(f) }
+    .each { |f| md5 << File.read(f) }
+  md5 << File.read(Rails.root.join("config", "routes.rb"))
+  md5 << File.read(Rails.root.join("Gemfile"))
+
+  return md5.hexdigest
 end
 
 # Taken from: http://stackoverflow.com/questions/1489183/colorized-ruby-output
