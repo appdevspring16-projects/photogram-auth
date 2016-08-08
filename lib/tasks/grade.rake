@@ -151,6 +151,9 @@ def checksum_student_code
   Dir["#{Rails.root.join("app")}/**/*"]
     .reject{ |f| File.directory?(f) }
     .each { |f| md5 << File.read(f) }
+  Dir["#{Rails.root.join("public")}/**/*"]
+    .reject{ |f| File.directory?(f) }
+    .each { |f| md5 << File.read(f) }
   md5 << File.read(Rails.root.join("config", "routes.rb"))
   md5 << File.read(Rails.root.join("Gemfile"))
 
