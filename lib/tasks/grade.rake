@@ -92,8 +92,19 @@ task :grade do # if needed in the future, add => :environment
     access_token: personal_access_token,
     test_output: rspec_output_json,
     checksum_tests: checksum_tests,
-    checksum_student_code: checksum_student_code
+    checksum_student_code: checksum_student_code,
+    checksum_student_code_details: {
+      checksum_app_assets: run_checksum(Rails.root.join("app/assets"), is_folder),
+      checksum_app_controllers: run_checksum(Rails.root.join("app/controllers"), is_folder),
+      checksum_app_models: run_checksum(Rails.root.join("app/models"), is_folder),
+      checksum_app_views: run_checksum(Rails.root.join("app/views"), is_folder),
+      checksum_db: run_checksum(Rails.root.join("db"), is_folder),
+      checksum_config_routes: run_checksum(Rails.root.join("config", "routes.rb"), is_file),
+      checksum_gemfile: run_checksum(Rails.root.join("Gemfile"), is_file),
+      checksum_public: run_checksum(Rails.root.join("public"), is_folder)
+    }
   }
+
   uri = URI(submission_url)
   begin
     use_ssl = uri.scheme == "https" ? true : false
@@ -132,31 +143,41 @@ end
 
 def checksum_tests
   md5 = Digest::MD5.new
-
-  # spec_folder = Rails.root.join("spec")
-  # spec_files = Dir["#{spec_folder}/**/*"].reject{ |f| File.directory?(f) }
-  # spec_files.each { |f| md5 << File.read(f) }
   Dir["#{Rails.root.join("spec")}/**/*"]
     .reject{ |f| File.directory?(f) }
     .each { |f| md5 << File.read(f) }
   md5 << File.read(Rails.root.join("lib", "tasks", "grade.rake"))
   md5 << File.read(Rails.root.join(".firstdraft_project.yml"))
-
   return md5.hexdigest
 end
 
 def checksum_student_code
   md5 = Digest::MD5.new
-
   Dir["#{Rails.root.join("app")}/**/*"]
     .reject{ |f| File.directory?(f) }
     .each { |f| md5 << File.read(f) }
   Dir["#{Rails.root.join("public")}/**/*"]
     .reject{ |f| File.directory?(f) }
     .each { |f| md5 << File.read(f) }
+  Dir["#{Rails.root.join("db")}/**/*"]
+    .reject{ |f| File.directory?(f) }
+    .each { |f| md5 << File.read(f) }
   md5 << File.read(Rails.root.join("config", "routes.rb"))
   md5 << File.read(Rails.root.join("Gemfile"))
+  return md5.hexdigest
+end
 
+def is_folder;  return true     end
+def is_file;    return false    end
+def run_checksum(f_path, f_is_folder)
+  md5 = Digest::MD5.new
+  if(f_is_folder)
+    Dir["#{f_path}/**/*"]
+      .reject{ |f| File.directory?(f) }
+      .each { |f| md5 << File.read(f) }
+  else
+    md5 << File.read(f_path)
+  end
   return md5.hexdigest
 end
 
