@@ -91,17 +91,19 @@ task :grade do # if needed in the future, add => :environment
     project_token: project_token,
     access_token: personal_access_token,
     test_output: rspec_output_json,
-    checksum_tests: checksum_tests,
-    checksum_student_code: checksum_student_code,
-    checksum_student_code_details: {
-      checksum_app_assets: run_checksum(Rails.root.join("app/assets"), is_folder),
-      checksum_app_controllers: run_checksum(Rails.root.join("app/controllers"), is_folder),
-      checksum_app_models: run_checksum(Rails.root.join("app/models"), is_folder),
-      checksum_app_views: run_checksum(Rails.root.join("app/views"), is_folder),
-      checksum_db: run_checksum(Rails.root.join("db"), is_folder),
-      checksum_config_routes: run_checksum(Rails.root.join("config", "routes.rb"), is_file),
-      checksum_gemfile: run_checksum(Rails.root.join("Gemfile"), is_file),
-      checksum_public: run_checksum(Rails.root.join("public"), is_folder)
+    checksums: {
+      tests: checksum_tests,
+      student_code: checksum_student_code,
+      student_code_details: {
+        app_assets: run_checksum(Rails.root.join("app/assets"), is_folder),
+        app_controllers: run_checksum(Rails.root.join("app/controllers"), is_folder),
+        app_models: run_checksum(Rails.root.join("app/models"), is_folder),
+        app_views: run_checksum(Rails.root.join("app/views"), is_folder),
+        db: run_checksum(Rails.root.join("db"), is_folder),
+        config_routes: run_checksum(Rails.root.join("config", "routes.rb"), is_file),
+        gemfile: run_checksum(Rails.root.join("Gemfile"), is_file),
+        public: run_checksum(Rails.root.join("public"), is_folder)
+      }
     }
   }
 
