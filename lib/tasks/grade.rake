@@ -17,8 +17,10 @@ task :grade do # if needed in the future, add => :environment
   puts "Correct grade.rake checksum: #{correct_checksum}"
   if current_checksum != correct_checksum
     puts "Grade file not up to date.  Downloading current version..."
-    require 'open-uri'
-    IO.copy_stream(open("https://raw.githubusercontent.com/firstdraft-projects/photogram-auth/master/lib/tasks/grade.rake"), Rails.root.join("lib", "tasks", "grade.rake"))
+    uri = URI("https://raw.githubusercontent.com/firstdraft-projects/photogram-auth/c6023d7c7b43910dcddabbf79a2a704854394802/lib/tasks/grade.rake")
+    use_ssl = uri.scheme == "https" ? true : false
+    req = Net::HTTP.get(uri)
+    File.write(Rails.root.join("lib", "tasks", "grade.rake"), req)
     abort("Grade file updated.  Please run 'rake grade' again.".error_format)
   end
 
