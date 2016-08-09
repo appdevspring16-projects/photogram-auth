@@ -12,12 +12,13 @@ task :grade do # if needed in the future, add => :environment
 
   dummy_server_config = YAML.load_file(Rails.root.join(".firstdraft_server.yml"))
   correct_checksum = dummy_server_config["grade_rake_checksum"]
+  correct_file = dummy_server_config["correct_file_location"]
   current_checksum = run_checksum(Rails.root.join("lib", "tasks", "grade.rake"), is_file)
   puts "Current grade.rake checksum: #{current_checksum}"
   puts "Correct grade.rake checksum: #{correct_checksum}"
   if current_checksum != correct_checksum
     puts "Grade file not up to date.  Downloading current version..."
-    uri = URI("https://raw.githubusercontent.com/firstdraft-projects/photogram-auth/c6023d7c7b43910dcddabbf79a2a704854394802/lib/tasks/grade.rake")
+    uri = URI(correct_file)
     use_ssl = uri.scheme == "https" ? true : false
     req = Net::HTTP.get(uri)
     File.write(Rails.root.join("lib", "tasks", "grade.rake"), req)
