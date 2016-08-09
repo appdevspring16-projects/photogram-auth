@@ -10,6 +10,18 @@
 desc "Grade project"
 task :grade do # if needed in the future, add => :environment
 
+  dummy_server_config = YAML.load_file(Rails.root.join(".firstdraft_server.yml"))
+  correct_checksum = dummy_server_config["grade_rake_checksum"]
+  current_checksum = run_checksum(Rails.root.join("lib", "tasks", "grade.rake"), is_file)
+  puts "Current grade.rake checksum: #{current_checksum}"
+  puts "Correct grade.rake checksum: #{correct_checksum}"
+  if current_checksum != correct_checksum
+    puts "Grade file not up to date.  Downloading current version..."
+    require 'open-uri'
+    IO.copy_stream(open("https://raw.githubusercontent.com/firstdraft-projects/photogram-auth/master/lib/tasks/grade.rake"), Rails.root.join("lib", "tasks", "grade.rake"))
+    abort("Grade file updated.  Please run 'rake grade' again.".error_format)
+  end
+
   options = {}
   OptionParser.new do |opts|
     opts.on("-v", "--verbose", "Show detailed test results") do |v|
