@@ -119,9 +119,9 @@ task :grade do # if needed in the future, add => :environment
     # http://stackoverflow.com/questions/5370697/what-s-the-best-way-to-handle-exceptions-from-nethttp
     network_error_msg_base = "NETWORK ERROR: the submission to #{submission_url} didn't work.  Possible causes: (a) your internet connection or (b) the grading server.  For (b), try submitting again, and if that doesn't work, try again after some time -- and if that still doesn't work, let your instructor know :)"
     if options[:verbose]
-      abort("#{network_error_msg_base}  \n\nTechnical error message that may or may not be helpful: #{e.inspect}\n".red.bold)
+      abort("#{network_error_msg_base}  \n\nTechnical error message that may or may not be helpful: #{e.inspect}\n".error_format)
     else
-      abort("#{network_error_msg_base}  For a technical error message that may or may not be helpful, run 'rake grade --verbose' or 'rake grade -v'.\n".red.bold)
+      abort("#{network_error_msg_base}  For a technical error message that may or may not be helpful, run 'rake grade --verbose' or 'rake grade -v'.\n".error_format)
     end
   end
   if res.kind_of? Net::HTTPCreated
@@ -136,8 +136,12 @@ task :grade do # if needed in the future, add => :environment
     else
       `open #{results_url}`
     end
+  elsif res.kind_of? Net::HTTPUnprocessableEntity
+    puts "- ERROR: #{res.body}".error_format
+    puts
+  # elsif res.kind_of? Net::HTTPInternalServerError
   else
-    puts "- ERROR: #{res.inspect}, #{res.body}"
+    puts "- ERROR: #{res.inspect}, #{res.body}".error_format
     puts
   end
 
@@ -213,6 +217,7 @@ class String
 
   # Specific formatting for 'rake grade'
   def header_format;  self.underline            end
-  def result_format; self.bold                  end
+  def result_format;  self.bold                 end
   def link_format;    self                      end
+  def error_format;   self.bg_red.bold          end
 end
