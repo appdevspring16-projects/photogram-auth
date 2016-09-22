@@ -1,0 +1,9 @@
+# POTENTIAL IMPROVEMENTS
+# 1. Store personal token in ~/firstdraft.yml or Windows/Nitrous equivalent
+# 2. Task to update tests (perhaps automatically if checksum doesn't match)
+# 3. Associate pull request / commit to each submission
+# 4. Make 'descriptive' option more efficient
+
+# TESTING NEEDED
+# A. SSL & 'open' & 'rspec' commands on Windows, Nitrous
+

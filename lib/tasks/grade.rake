@@ -1,31 +1,7 @@
-# POTENTIAL IMPROVEMENTS
-# 1. Store personal token in ~/firstdraft.yml or Windows/Nitrous equivalent
-# 2. Task to update tests (perhaps automatically if checksum doesn't match)
-# 3. Associate pull request / commit to each submission
-# 4. Make 'descriptive' option more efficient
-
-# TESTING NEEDED
-# A. SSL & 'open' & 'rspec' commands on Windows, Nitrous
-
 desc "Grade project"
 task :grade do # if needed in the future, add => :environment
 
-  # # UNFINISHED CHECKSUM FEATURE
-  # dummy_server_config = YAML.load_file(Rails.root.join(".firstdraft_server.yml"))
-  # correct_checksum = dummy_server_config["grade_rake_checksum"]
-  # correct_file = dummy_server_config["correct_file_location"]
-  # current_checksum = run_checksum(Rails.root.join("lib", "tasks", "grade.rake"), is_file)
-  # puts "Current grade.rake checksum: #{current_checksum}"
-  # puts "Correct grade.rake checksum: #{correct_checksum}"
-  # if current_checksum != correct_checksum
-  #   puts "Grade file not up to date.  Downloading current version..."
-  #   uri = URI(correct_file)
-  #   use_ssl = uri.scheme == "https" ? true : false
-  #   req = Net::HTTP.get(uri)
-  #   File.write(Rails.root.join("lib", "tasks", "grade.rake"), req)
-  #   abort("Grade file updated.  Please run 'rake grade' again.".error_format)
-  # end
-
+  # Not quite right: options work, but barely
   options = {}
   OptionParser.new do |opts|
     opts.on("-v", "--verbose", "Show detailed test results") do |v|
@@ -132,7 +108,7 @@ task :grade do # if needed in the future, add => :environment
       http.request(req)
     end
   rescue Exception => e
-    # http://stackoverflow.com/questions/5370697/what-s-the-best-way-to-handle-exceptions-from-nethttp
+    # see http://stackoverflow.com/questions/5370697/what-s-the-best-way-to-handle-exceptions-from-nethttp
     network_error_msg_base = "NETWORK ERROR: the submission to #{submission_url} didn't work.  Possible causes: (a) your internet connection or (b) the grading server.  For (b), try submitting again, and if that doesn't work, try again after some time -- and if that still doesn't work, let your instructor know :)"
     if options[:verbose]
       abort("#{network_error_msg_base}  \n\nTechnical error message that may or may not be helpful: #{e.inspect}\n".error_format)
